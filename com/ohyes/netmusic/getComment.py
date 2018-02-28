@@ -4,6 +4,7 @@ import json
 import os
 import base64
 from Crypto.Cipher import AES
+import urllib
 
 headers = {
         'Host': 'music.163.com',
@@ -104,9 +105,25 @@ def commonlist(id, headers, data):
         hotlist.append(content['content'].encode('utf-8'))
     return hotlist
 
+def songname(id, headers):
+    hotlist = []
+    idencode=urllib.urlencode({'ids': id.encode('gb2312')})
+    url = 'http://music.163.com/api/song/detail/?id=' + id + '&ids=%5B'+id+"%5D"
+    # url = 'http://music.163.com/weapi/v1/resource/comments/R_SO_4_' + id + '/?csrf_token='
+    req = requests.post(url, headers=headers, data="")
+    message = req.json()['songs'][0]
+    name = message['name']
+    artists = ''
+    for content in message['artists']:
+        artists = artists + ' / ' +content['name']
+    name_ailas = name + '--' + artists[2:]
+    return name_ailas
+
 if __name__ == '__main__':
     # main()
     data = doPrepare('30953009')
-    hotlist = commonlist('30953009', headers, data)
+    # hotlist = commonlist('30953009', headers, data)
+    hotlist = songname('30953009', headers)
+    print hotlist
     print "end"
 
